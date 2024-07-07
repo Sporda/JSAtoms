@@ -12,16 +12,22 @@ Board.init = function() {
             var cell = {
                 atoms: 0,
                 limit: limit,
+                player: -1,
             }
             this._data[i].push(cell);
         }
     }
 }
 
-Board._addAndCheck = function(x, y) {
+Board._addAndCheck = function(x, y, player) {
     
     var cell = this._data[x][y];
+
+    Score.removePoint(cell.player);
+    Score.addPoint(player);
+
     cell.atoms++;
+    cell.player = player;
 
     Draw.cell(x, y);
 
@@ -47,9 +53,10 @@ Board.getAtoms = function(x , y) {
     return this._data[x][y].atoms;
 }
 
-Board.addAtom = function(x, y) {
+Board.addAtom = function(x, y, player) {
     
-    this._addAndCheck(x, y);
+    this._addAndCheck(x, y, player);
+    if (Score.isGameOver()) { return; }
 
     if (this._criticals.length > 0) {
         Player.stopListening();
@@ -69,9 +76,11 @@ Board._explode = function() {
 
     for (var i = 0; i < neighbors.length; i++) {
         var n = neighbors[i];
-        this._addAndCheck(n[0], n[1]);
+        this._addAndCheck(n[0], n[1], cell.player);
     }
 
+    if (Score.isGameOver()) { return; }
+    
     if (this._criticals.length) {
         setTimeout(this._explode.bind(this), this.DELAY);
     } else {
@@ -86,4 +95,8 @@ Board._getNeighbors = function(x, y) {
     if (y > 0) { results.push([x, y-1]); }
     if (y+1 < Game.SIZE) { results.push([x, y+1]); }
     return results;
+}
+
+Board.getPlayer = function(x, y) {
+    return this._data[x][y].player;
 }

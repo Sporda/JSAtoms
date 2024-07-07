@@ -61,6 +61,9 @@ Draw.cell = function(x, y) {
     var count = Board.getAtoms(x, y);
     if (!count) return;
 
+    var player = Board.getPlayer(x, y);
+    var color = Score.getColor(player);
+
     var positions = this.POSITIONS[count];
 
     for (var i=0; i < positions.length; i++) {
@@ -70,7 +73,7 @@ Draw.cell = function(x, y) {
         var atomX = (x + posX) * this.CELL;
         var atomY = (y + posY) * this.CELL;
 
-        this._atom(atomX, atomY);
+        this._atom(atomX, atomY, color);
     }
 }
 
@@ -116,13 +119,13 @@ Draw._cell = function(x, y, count) {
 }
 
 /* Vykreslit jeden atom */
-Draw._atom = function(x, y) {
+Draw._atom = function(x, y, color) {
     this._context.beginPath();
 
     this._context.moveTo(x + this.ATOM, y);
     this._context.arc(x, y, this.ATOM, 0, 2 * Math.PI, false);
 
-    this._context.fillStyle = "blue";
+    this._context.fillStyle = color;
     this._context.fill();
     this._context.stroke();
 }
